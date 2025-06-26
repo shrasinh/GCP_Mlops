@@ -34,12 +34,12 @@ jobs:
           ${{ runner.os }}-pip-
     
     - name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v1
+      uses: google-github-actions/auth@v2
       with:
         credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
     
     - name: Set up Google Cloud SDK
-      uses: google-github-actions/setup-gcloud@v1
+      uses: google-github-actions/setup-gcloud@v2
     
     - name: Install dependencies
       run: |
@@ -48,19 +48,14 @@ jobs:
     
     - name: Set up DVC
       run: |
-        dvc pull || echo "DVC pull failed, continuing..."
-    
-    - name: Create test directories
-      run: |
-        mkdir -p test_reports
-        mkdir -p artifacts || true
+        dvc pull artifacts
     
     - name: Run tests 
       run: |
         python3 test_model.py 2>&1 > test_output.txt
   
     - name: Setup CML
-      uses: iterative/setup-cml@v1
+      uses: iterative/setup-cml@v2
     
     - name: Create CML Report
       env:
