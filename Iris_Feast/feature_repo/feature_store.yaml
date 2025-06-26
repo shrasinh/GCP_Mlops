@@ -1,0 +1,13 @@
+project: Iris_Feast
+registry: gs://mlops-course-arcane-rigging-461217-m1/feast/registry.db
+provider: gcp
+entity_key_serialization_version: 2
+
+offline_store:
+  type: bigquery
+  dataset: Mlops_offline_store
+
+online_store:
+  type: datastore
+  project_id: arcane-rigging-461217-m1
+  namespace: Mlops_online_store
