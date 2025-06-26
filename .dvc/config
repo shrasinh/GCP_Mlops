@@ -1,0 +1,4 @@
+[core]
+    remote = dvcremote
+['remote "dvcremote"']
+    url = gs://mlops-course-arcane-rigging-461217-m1/dvc
