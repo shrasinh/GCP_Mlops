@@ -5,6 +5,23 @@ import numpy as np
 from feast import FeatureStore
 
 
+# Additional utility tests
+def test_artifacts_directory_exists():
+    """Test that artifacts directory and model file exist."""
+    import os
+    assert os.path.exists("artifacts"), "Artifacts directory should exist"
+    assert os.path.exists("artifacts/model.joblib"), "Model file should exist"
+
+
+def test_feast_configuration():
+    """Test that Feast is properly configured."""
+    try:
+        store = FeatureStore(repo_path="Iris_Feast/feature_repo")
+        feature_service = store.get_feature_service("feast_model_v1")
+        assert feature_service is not None, "Feature service should exist"
+    except Exception as e:
+        pytest.fail(f"Feast configuration error: {str(e)}")
+
 class TestModelPredictions:
     """Test suite for model predictions using Feast online store."""
     
@@ -84,23 +101,6 @@ class TestModelPredictions:
             if predicted_class != expected_class:
                 print(f"Warning: Species '{species}' predicted as class {predicted_class}, expected {expected_class}")
                 print(f"Features: {row[feature_columns].to_dict()}")
-
-# Additional utility tests
-def test_artifacts_directory_exists():
-    """Test that artifacts directory and model file exist."""
-    import os
-    assert os.path.exists("artifacts"), "Artifacts directory should exist"
-    assert os.path.exists("artifacts/model.joblib"), "Model file should exist"
-
-
-def test_feast_configuration():
-    """Test that Feast is properly configured."""
-    try:
-        store = FeatureStore(repo_path="Iris_Feast/feature_repo")
-        feature_service = store.get_feature_service("feast_model_v1")
-        assert feature_service is not None, "Feature service should exist"
-    except Exception as e:
-        pytest.fail(f"Feast configuration error: {str(e)}")
 
 
 if __name__ == "__main__":

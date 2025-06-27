@@ -3,8 +3,6 @@ name: CI Pipeline with Model Testing
 on:
   pull_request:
     branches: [ main ]
-  push:
-    branches: [ dev, main ]
 
 jobs:
   test-and-report:
