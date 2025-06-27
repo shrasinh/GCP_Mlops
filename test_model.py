@@ -3,12 +3,12 @@ import joblib
 import pandas as pd
 import numpy as np
 from feast import FeatureStore
+import os
 
 
-# Additional utility tests
+# Utility tests
 def test_artifacts_directory_exists():
     """Test that artifacts directory and model file exist."""
-    import os
     assert os.path.exists("artifacts"), "Artifacts directory should exist"
     assert os.path.exists("artifacts/model.joblib"), "Model file should exist"
 
@@ -71,7 +71,7 @@ class TestModelPredictions:
         # Check for null values
         assert not online_features[required_columns].isnull().any().any(), "No null values should be present in required columns"
         
-        # Check that we have exactly 3 rows (one for each species)
+        # Check that the DataFrame have exactly 3 rows (one for each species)
         assert len(online_features) == 3, f"Expected 3 rows, got {len(online_features)}"
     
     def test_model_loading(self, model):
@@ -97,9 +97,9 @@ class TestModelPredictions:
             expected_class = row['species']
             
             # For a well-trained model on typical iris features, prediction should match species
-            # This is a soft check - we'll warn if it doesn't match but not fail the test
+            # This is a soft check - warn if it doesn't match but not fail the test
             if predicted_class != expected_class:
-                print(f"Warning: Species '{species}' predicted as class {predicted_class}, expected {expected_class}")
+                print(f"Warning: Species '{expected_class}' predicted as class {predicted_class}, expected {expected_class}")
                 print(f"Features: {row[feature_columns].to_dict()}")
 
 
