@@ -10,7 +10,6 @@ jobs:
     
     permissions:
       contents: read
-      pull-requests: write
       
     steps:
     - name: Checkout code
@@ -59,7 +58,7 @@ jobs:
       env:
         REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        echo "test output" > report.md
+        echo "# Test Output" > report.md
         echo "\`\`\`" >> report.md
         cat test_output.txt >> report.md
         echo "\`\`\`" >> report.md
