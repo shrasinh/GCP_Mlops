@@ -9,7 +9,7 @@ env:
   GAR_LOCATION: us-central1
   GKE_CLUSTER: mlops-assignment-cluster
   GKE_LOCATION: us-east1
-  DEPLOYMENT_NAME: ml-pipeline-app
+  DEPLOYMENT_NAME: mlops-assignment-app
   REPOSITORY: mlops-assignment-artifacts
   IMAGE: mlops-assignment-fastapi
 
