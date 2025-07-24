@@ -58,7 +58,7 @@ jobs:
       - name: Deploy to GKE
         run: |-
           # Replace image url in deployment.yaml
-          sed -i "s|image:|image:$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA|g" k8s/deployment.yaml
+          sed -i "s|image:.*|image: $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA|g" k8s/deployment.yaml
           
           # Apply Kubernetes manifests
           kubectl apply -f k8s/
