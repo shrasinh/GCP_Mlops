@@ -15,8 +15,8 @@ env:
 
 jobs:
   build-deploy:
-    name: Build and Deploy
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
       id-token: write
@@ -25,14 +25,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
       - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v1'
+        uses: 'google-github-actions/setup-gcloud@v2'
+      
+      - name: 'Setup DVC'
+        uses: iterative/setup-dvc@v1
+
+      - name: Pull the artifacts directory with dvc
+        run: |
+          dvc pull artifacts
 
       - name: 'Docker auth'
         run: |-
