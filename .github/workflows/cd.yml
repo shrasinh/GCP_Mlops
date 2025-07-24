@@ -78,9 +78,11 @@ jobs:
           kubectl get services -o wide
 
       - name: Setup CML
-        uses: iterative/setup-cml@v1
+        uses: iterative/setup-cml@v2
 
-      - name: Get Service IP and Comment
+      - name: Get Service IP and Comment using CML
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |-
           
           # Get the external IP of the service
@@ -103,5 +105,3 @@ jobs:
           
           # Send CML comment
           cml comment create cml_report.md
-        env:
-          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
