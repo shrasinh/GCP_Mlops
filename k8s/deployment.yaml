@@ -22,5 +22,17 @@ spec:
             memory: "256Mi"
             cpu: "100m"
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "768Mi"
+            cpu: "300m"
+        livenessProbe:
+          httpGet:
+            path: /live_check
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready_check
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
