@@ -32,7 +32,13 @@ class JSONFormatter(logging.Formatter):
             "message": record.getMessage(),
             "timestamp": self.formatTime(record)
         }
-        return json.dumps(log_obj)
+        
+        # Add extra fields
+        for key, value in record.__dict__.items():
+            if key in ["event", "trace_id", "path", "error", "latency_ms"]:
+                log_obj[key] = value
+                
+        return json.dumps(log_obj, default=str)
 
 handler.setFormatter(JSONFormatter())
 logger.addHandler(handler)
