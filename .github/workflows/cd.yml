@@ -8,7 +8,7 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GAR_LOCATION: us-central1
   GKE_CLUSTER: mlops-assignment-cluster
-  GKE_LOCATION: us-east1
+  GKE_ZONE: us-east1-b
   DEPLOYMENT_NAME: mlops-assignment-app
   REPOSITORY: mlops-assignment-artifacts
   IMAGE: mlops-assignment-fastapi
@@ -62,7 +62,7 @@ jobs:
         uses: 'google-github-actions/get-gke-credentials@v2'
         with:
          cluster_name: ${{ env.GKE_CLUSTER }}
-         location: ${{ env.GKE_LOCATION }}
+         location: ${{ env.GKE_ZONE }}
 
       - name: Deploy to GKE
         run: |-
