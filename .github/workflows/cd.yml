@@ -10,6 +10,7 @@ env:
   GKE_CLUSTER: mlops-assignment-cluster
   GKE_ZONE: us-east1-b
   DEPLOYMENT_NAME: mlops-assignment-app
+  SERVICE_NAME: mlops-assignment-service
   REPOSITORY: mlops-assignment-artifacts
   IMAGE: mlops-assignment-fastapi
 
@@ -87,7 +88,8 @@ jobs:
         run: |-
           
           # Get the external IP of the service
-          EXTERNAL_IP=$(kubectl get service mlops-assignment-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "Pending")
+          EXTERNAL_IP=$(kubectl get service $SERVICE_NAME -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+          EXTERNAL_IP=${EXTERNAL_IP:-"Pending"}
           
           # Create CML comment
           cat > cml_report.md << EOF
@@ -96,9 +98,9 @@ jobs:
           **Deployment Status**: Successfully deployed to GKE cluster \`$GKE_CLUSTER\`
           
           **Service Details**:
-          - **Service Name**: mlops-assignment-service
+          - **Service Name**: $SERVICE_NAME
           - **External IP**: \`${EXTERNAL_IP}\`
-          - **Cluster**: $GKE_CLUSTER (${GKE_LOCATION})
+          - **Cluster**: $GKE_CLUSTER (${GKE_ZONE})
           - **Image**: $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA
         
           **Deployment Time**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
