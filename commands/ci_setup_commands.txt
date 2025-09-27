@@ -1,0 +1,98 @@
+# Continuous Integration Setup Process
+
+## Environment Setup and DVC Configuration
+
+# Activate the virtual environment to ensure all dependencies are available
+source .env/bin/activate
+
+# Remove the old DVC tracking for single model file since we want to track entire folders now
+dvc remove artifacts/model.joblib
+
+# Add both data and artifacts folders to DVC tracking for complete versioning
+dvc add data artifacts
+
+# Configure Google Cloud Storage bucket as the remote storage for DVC
+dvc remote add dvcremote gs://mlops-course-arcane-rigging-461217-m1/dvc
+
+# Set the GCS bucket as the default remote storage location
+dvc remote default dvcremote
+
+# Push all tracked data and artifacts to the remote storage
+dvc push
+
+
+## GitHub Repository Setup
+# Create a github repo (https://github.com/shrasinh/mlops-assignment.git) for hosting the remote repo 
+# This is done manually through GitHub web interface
+
+
+## Google Cloud Authentication and Service Account
+
+# Create a service account 
+gcloud iam service-accounts create my-service-account \
+    --description="My service account for automation" \
+    --display-name="My Service Account"
+
+# Authenticate with Google Cloud to be able to grant owner permissions to the service account
+gcloud auth login
+
+# Grant owner permissions to the service account (allows full project access)
+gcloud projects add-iam-policy-binding arcane-rigging-461217-m1 \
+    --member="serviceAccount:my-service-account@arcane-rigging-461217-m1.iam.gserviceaccount.com" \
+    --role="roles/owner"
+
+# Generate JSON key file for service account authentication
+gcloud iam service-accounts keys create ./my-service-account-key.json \
+    --iam-account=my-service-account@arcane-rigging-461217-m1.iam.gserviceaccount.com
+
+
+## GitHub Secrets Configuration
+# Go to https://github.com/shrasinh/mlops-assignment/settings, open secrets and variable -> actions -> new Repository secrets and add name of the secret as GOOGLE_CREDENTIALS with the secret as content of the my-service-account-key.json.
+# This allows GitHub Actions to authenticate with Google Cloud services to be able to use the Google Cloud resources
+
+
+## Project Dependencies and Files
+# add the .github/workflows/ci.yml and test_model.py files
+# These files need to be created manually for CI pipeline and testing
+
+# Generate requirements.txt file with all current package versions for reproducible environments
+uv pip freeze > requirements.txt
+
+
+## Git Repository Management
+
+# Stage all changes for commit
+git add .
+
+# Commit all the setup changes to git
+git commit -m "added the code changes"
+
+# Rename the default branch from master to main (modern convention)
+git branch --move master main
+
+# Connect local repository to GitHub remote repository
+git remote add origin https://github.com/shrasinh/mlops-assignment.git
+
+# Push the main branch to GitHub and set it as upstream
+git push -u origin main
+
+
+## Development Branch Workflow
+
+# Create and switch to a new development branch for feature development
+git checkout -b dev
+
+# make changes to the test_model.py
+# Manual step to modify the testing file as needed
+
+# Stage changes made to test_model.py
+git add .
+
+# Commit the test file changes
+git commit -m "changed the test_model.py file"
+
+# Push the development branch to GitHub
+git push -u origin dev
+
+# raise a pull request to main branch on github
+# This is done through GitHub web interface to merge dev changes into main

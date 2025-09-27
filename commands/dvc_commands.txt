@@ -1,0 +1,87 @@
+# DVC Workflow Demo
+# This file contains the commands used for the week-2 assignment
+# It demonstrates how to version control data and ML models using DVC
+
+# Install uv, so to able to create a virtual environment with python 3.12 and download a compatible version of DVC
+# Note: We need to use python 3.12 because the latest version of DVC, i.e. 3.59.2, 
+# is facing compatibility issue with python 3.10, which is the python version present in the workbench instance
+pip install uv
+
+# Create a virtual environment, so to encapsulate the local environment
+uv venv --python 3.12 .env
+
+# Activate the virtual environment
+source .env/bin/activate
+
+# Install DVC for data version control
+uv pip install dvc
+
+# Initialize Git repository for version control
+git init
+
+# Configure Git user 
+git config --global user.email sinhashramana6@gmail.com
+git config --global user.name shramana
+
+# Initialize DVC in the current directory
+# This creates .dvc directory and .dvcignore file
+dvc init
+
+# Add data directory to DVC tracking
+# This creates data.dvc file which contains metadata about the data
+# The actual data is stored in DVC cache, not in Git
+dvc add data
+
+# Now train the model using the code present in the Jupyter notebook
+
+# Add the trained model to DVC tracking
+dvc add artifacts/model.joblib
+
+# Add DVC files and .gitignore to Git, so that they can be tracked by Git
+# Note: We don't add the actual data/model files, only their .dvc metadata files
+git add artifacts/model.joblib.dvc artifacts/.gitignore data.dvc .gitignore
+
+# Commit the first iteration
+git commit -m "first iteration with 150 datapoints"
+
+# Tag this version for easy reference
+git tag -a "v1.0" -m "model v1.0, 150 datapoints"
+
+# Simulate adding more data by appending last 20 lines to the dataset
+cat data/iris.csv | tail -20 >> data/iris.csv
+
+# Update DVC tracking with the new data
+# This updates the data.dvc file with new hash/metadata
+dvc add data
+
+# Now retrain the model using the code present in the Jupyter notebook
+
+# Update DVC tracking for the retrained model
+dvc add artifacts/model.joblib
+
+# Add updated DVC metadata files to Git
+git add artifacts/model.joblib.dvc data.dvc 
+
+# Commit the second iteration
+git commit -m "second iteration with 170 datapoints"
+
+# Tag this version
+git tag -a "v2.0" -m "model v2.0, 170 datapoints"
+
+# Switch to the first version
+git checkout v1.0
+
+# Pull the corresponding data and model files from DVC cache
+dvc checkout
+
+# Verify the data size (should show 151 lines including header)
+wc -l data/iris.csv
+
+# Switch to the second version
+git checkout v2.0
+
+# Pull the corresponding data and model files from DVC cache
+dvc checkout
+
+# Verify the data size (should show 171 lines including header)
+wc -l data/iris.csv

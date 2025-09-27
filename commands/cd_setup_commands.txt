@@ -1,0 +1,62 @@
+﻿# Infrastructure Setup Commands
+
+
+# Create GKE Autopilot cluster with logging and monitoring enabled
+gcloud container clusters create-auto mlops-assignment-cluster \
+     --location=us-east1 \
+     --logging=SYSTEM,WORKLOAD \
+     --monitoring=SYSTEM 
+
+
+# Create Docker repository in Google Artifact Registry
+gcloud artifacts repositories create mlops-assignment-artifacts \
+    --repository-format=docker \
+    --location=us-central1 \
+    --description="MLOps Assignment Docker repository"
+
+
+# Local Development and Testing
+
+
+# Start FastAPI application server on all interfaces, port 8000
+uvicorn app:app --host 0.0.0.0 --port 8000
+
+
+# Test API prediction endpoint with sample iris flower data
+curl -X POST http://localhost:8000/predict -H "Content-Type:application/json" -d '{"sepal_length":"4.8","sepal_width":"4","petal_length":"2.8","petal_width":"6"}'
+
+
+# Docker Image Operations
+
+
+# Build Docker image using Dockerfile in deployment directory
+docker build –file deployment/Dockerfile -t iris .
+
+
+# Run Docker container, mapping port 8000 from container to host
+docker run -p 8000:8000 iris
+
+
+# Tag local image for Google Artifact Registry with full repository path
+docker tag iris \
+us-central1-docker.pkg.dev/arcane-rigging-461217-m1/mlops-assignment-artifacts/iris:latest
+
+
+# Push tagged image to Google Artifact Registry repository
+docker push \
+us-central1-docker.pkg.dev/arcane-rigging-461217-m1/mlops-assignment-artifacts/iris:latest
+
+
+# Kubernetes Deployment
+
+
+# Install GKE authentication plugin for kubectl
+sudo apt-get install google-cloud-cli-gke-gcloud-auth-plugin
+
+
+# Configure kubectl to connect to the GKE cluster
+gcloud container clusters get-credentials mlops-assignment-cluster --location=us-east1
+
+
+# Deploy all Kubernetes manifests from k8s directory to cluster
+kubectl apply -f k8s/

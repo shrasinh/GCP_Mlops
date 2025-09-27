@@ -1,0 +1,81 @@
+﻿# Create Google Cloud Artifact Registry repository
+gcloud artifacts repositories create mlops-assignment-artifacts \
+    --repository-format=docker \
+    --location=us-central1 \
+    --description="MLOps Assignment Docker repository"
+
+
+# Create GKE cluster
+gcloud container clusters create mlops-assignment-cluster \
+    --disk-type=pd-standard \
+    --num-nodes=3 \
+    --zone=us-east1-b \
+    --workload-pool=arcane-rigging-461217-m1.svc.id.goog \
+    --logging=SYSTEM,WORKLOAD,KCP_HPA \
+    --monitoring=SYSTEM
+
+
+# Install GKE auth plugin
+sudo apt-get install google-cloud-cli-gke-gcloud-auth-plugin
+
+
+# Get cluster credentials
+gcloud container clusters get-credentials mlops-assignment-cluster --zone=us-east1-b
+
+
+# Allow the Kubernetes service account to impersonate the GCP service account
+gcloud iam service-accounts add-iam-policy-binding \
+    github-action@arcane-rigging-461217-m1.iam.gserviceaccount.com \
+    --role roles/iam.workloadIdentityUser \
+    --member "serviceAccount:arcane-rigging-461217-m1.svc.id.goog[default/default]"
+
+
+# Annotate the Kubernetes service account
+kubectl annotate serviceaccount default \
+    iam.gke.io/gcp-service-account=github-action@arcane-rigging-461217-m1.iam.gserviceaccount.com \
+    --namespace default
+
+
+# Start uvicorn server
+uvicorn app:app --host 0.0.0.0 --port 8000
+
+
+# Test API endpoint
+curl -X POST http://localhost:8000/predict \
+    -H "Content-Type:application/json" \
+    -d '{"sepal_length":"4.8","sepal_width":"4","petal_length":"2.8","petal_width":"6"}' \
+    -v
+
+
+# Build Docker image
+docker build --file deployment/Dockerfile -t iris .
+
+
+# Run Docker container locally
+docker run -p 8000:8000 iris
+
+
+# Configure Docker for Google Artifact Registry
+gcloud auth configure-docker $GAR_LOCATION-docker.pkg.dev
+
+
+# Tag Docker image for registry
+docker tag iris \
+    us-central1-docker.pkg.dev/arcane-rigging-461217-m1/mlops-assignment-artifacts/iris:latest
+
+
+# Push Docker image to registry
+docker push \
+    us-central1-docker.pkg.dev/arcane-rigging-461217-m1/mlops-assignment-artifacts/iris:latest
+
+
+# Apply Kubernetes manifests
+kubectl apply -f k8s/
+
+
+# Install wrk load testing tool
+sudo apt-get install wrk
+
+
+# Run load test
+wrk -t4 -c100 -d5m -s post.lua http://35.231.35.91/predict --latency
